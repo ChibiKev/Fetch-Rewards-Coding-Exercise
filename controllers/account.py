@@ -2,9 +2,6 @@ from flask import request, jsonify, Blueprint
 from datetime import datetime
 from models.Transactions import Transactions
 from app import db
-# Flask is needed to build a web server using python.
-# Request tells flask where we're getting our data and telling it to read it
-# Jsonify provides us the form of our data
 
 bp = Blueprint('account', __name__, url_prefix = '/account')
 
@@ -13,10 +10,12 @@ def account():
   transactions = Transactions.query.all()
   transactionlist = [] 
   for transaction in transactions:
-    payer = transaction.payer
-    points = transaction.points
-    timestamp = transaction.timestamp
-    transactionlist.append([payer, points, timestamp])
+    transactionDetails = {
+      'payer': transaction.payer,
+      'points': transaction.points,
+      'timestamp': transaction.timestamp
+    }
+    transactionlist.append(transactionDetails)
   return jsonify(transactionlist)
 
 @bp.route("/add", methods = ['GET', 'POST'])
@@ -33,8 +32,18 @@ def addTransactions():
       db.session.add(transaction)
       db.session.commit()
     except: 
-      return "Incorrect request"
-    return req
+      message = {
+        'status': 500,
+        'message': 'Incorrect request',
+        'request': req
+      }
+      return message
+    message = {
+      'status': 200,
+      'message': 'Success',
+      'request': req
+    }
+    return message
 
 @bp.route("/spend", methods = ['GET'])
 def spend():
