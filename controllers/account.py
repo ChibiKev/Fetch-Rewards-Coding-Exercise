@@ -23,7 +23,7 @@ def addTransactions():
   if request.method == 'GET':
     return "This is add for transactions"
   elif request.method == 'POST':
-    req = request.json  
+    req = request.json
     try:
       payer = req['payer']
       points = req['points']
@@ -45,6 +45,19 @@ def addTransactions():
     }
     return message
 
-@bp.route("/spend", methods = ['GET'])
+@bp.route("/spend", methods = ['GET', 'POST'])
 def spend():
-  return "Success."
+  if request.method == 'GET':
+    return "This is spend for transactions"
+  elif request.method == 'POST':
+    req = request.json
+    try:
+      requiredPoints = req['points']
+    except:
+      message = {
+        'status': 500,
+        'message': 'Incorrect request',
+        'request': req
+      }
+      return message
+    return req
