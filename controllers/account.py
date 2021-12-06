@@ -28,15 +28,15 @@ def users():
 @bp.route("/transactions", methods = ['GET'])
 def transactionsList():
   transactions = Transactions.query.all()
-  transactionlist = [] 
+  transactionList = [] 
   for transaction in transactions:
     transactionDetails = {
       'payer': transaction.payer,
       'points': transaction.points,
       'timestamp': transaction.timestamp
     }
-    transactionlist.append(transactionDetails)
-  return jsonify(transactionlist)
+    transactionList.append(transactionDetails)
+  return jsonify(transactionList)
 
 @bp.route("/add", methods = ['GET', 'POST'])
 def addTransactions():
@@ -94,21 +94,33 @@ def spend():
         }
       else:
         transactionValue = user.transaction
-        transactionlist = []
+        transactionList = []
         transactions = Transactions.query.filter(Transactions.id > transactionValue).order_by(asc(Transactions.timestamp)).all()
         for transaction in transactions:
-          transactionDetails = {
-            'payer': transaction.payer,
-            'points': transaction.points,
-            'timestamp': transaction.timestamp
-          }
-          transactionlist.append(transactionDetails)
-        return jsonify(transactionlist)
-        message = {
-          'status': 200,
-          'message': 'Success',
-          'request': req
-        }
+          found = next((index for (index, d) in enumerate(transactionList) if d['payer'] == transaction.payer), None)
+          if transaction.points < requiredPoints:
+            requiredPoints -= transaction.points
+            if found == None:
+              transactionDetails = {
+                'payer': transaction.payer,
+                'points': 0 - transaction.points,
+              }
+              transactionList.append(transactionDetails)
+            else:
+              transactionList[found]["points"] -= transaction.points
+          else:
+            difference = transaction.points - requiredPoints
+            transactionValue = transaction.id
+            if found == None:
+              transactionDetails = {
+                'payer': transaction.payer,
+                'points': 0 - requiredPoints,
+              }
+              transactionList.append(transactionDetails)
+            else:
+              transactionList[found]["points"] -= requiredPoints
+            break
+        return jsonify(transactionList)
     except:
       message = {
         'status': 500,
