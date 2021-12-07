@@ -20,9 +20,11 @@ flask run
 Perform theses using Postman.
 When calling this API the root is `http://127.0.0.1:5000`
 ### Get Requests
-`/account` - Get User's Current Points
+`/` - Short Description of The Project.
 
-`/account/checkUsers` - Get All IDs of Users. Mainly Used For Testing Purposes Since There Is Only 1 User So Far.
+`/checkUsers` - Get All IDs of Users. Mainly Used For Testing Purposes Since There Is Only 1 User So Far.
+
+`/account` - Get User's Current Points
 
 `/account/transactions` - Get All Transactions
 

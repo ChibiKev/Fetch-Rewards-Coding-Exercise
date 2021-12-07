@@ -8,6 +8,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'db
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-from controllers import account
+from controllers import main, account
 db.create_all()
+app.register_blueprint(main.bp)
 app.register_blueprint(account.bp)

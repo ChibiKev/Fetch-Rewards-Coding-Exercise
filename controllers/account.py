@@ -17,14 +17,6 @@ def userProfile():
     db.session.commit()
   return "Current Points: " + str(user.points)
 
-@bp.route("/checkUsers", methods = ['GET'])
-def users():
-  users = User.query.all()
-  userlist = [] 
-  for user in users:
-    userlist.append(user.id)
-  return jsonify(userlist)
-
 @bp.route("/transactions", methods = ['GET'])
 def transactionsList():
   transactions = Transactions.query.all()
