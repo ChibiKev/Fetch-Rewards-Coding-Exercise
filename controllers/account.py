@@ -73,48 +73,60 @@ def spend():
   elif request.method == 'POST':
     req = request.json
     try:
-      requiredPoints = req['points']
-      user = User.query.get(1)
-      if not user:
-        print("No Vaild User: Creating User")
-        user = User(points = 0)
-        db.session.add(user)
-        db.session.commit()
-      if requiredPoints > user.points:
-        message = {
-          'status': 500,
-          'message': 'Insufficient Funds',
-          'request': req
-        }
-      else:
-        transactionValue = user.transaction
-        transactionList = []
-        transactions = Transactions.query.filter_by(Transactions.id > transactionValue, Transactions.used == False).order_by(asc(Transactions.timestamp)).all()
-        for transaction in transactions:
-          found = next((index for (index, d) in enumerate(transactionList) if d['payer'] == transaction.payer), None)
-          if transaction.points < requiredPoints:
-            requiredPoints -= transaction.points
-            if found == None:
-              transactionDetails = {
-                'payer': transaction.payer,
-                'points': 0 - transaction.points,
-              }
-              transactionList.append(transactionDetails)
-            else:
-              transactionList[found]["points"] -= transaction.points
+    requiredPoints = req['points']
+    user = User.query.get(1)
+    if not user:
+      print("No Vaild User: Creating User")
+      user = User(points = 0)
+      db.session.add(user)
+      db.session.commit()
+    if requiredPoints > user.points:
+      message = {
+        'status': 500,
+        'message': 'Insufficient Funds',
+        'request': req
+      }
+    else:
+      transactionList = []
+      transactions = Transactions.query.filter(Transactions.used == False).order_by(asc(Transactions.timestamp)).all()
+      for transaction in transactions:
+        found = next((index for (index, d) in enumerate(transactionList) if d['payer'] == transaction.payer), None)
+        if transaction.points <= requiredPoints:
+          requiredPoints -= transaction.points
+          if found == None:
+            transactionDetails = {
+              'payer': transaction.payer,
+              'points': 0 - transaction.points,
+            }
+            transactionList.append(transactionDetails)
           else:
-            difference = transaction.points - requiredPoints
-            transactionValue = transaction.id
-            if found == None:
-              transactionDetails = {
-                'payer': transaction.payer,
-                'points': 0 - requiredPoints,
-              }
-              transactionList.append(transactionDetails)
-            else:
-              transactionList[found]["points"] -= requiredPoints
-            break
-        return jsonify(transactionList)
+            transactionList[found]["points"] -= transaction.points
+          transaction.used = True
+          user.points -= transaction.points
+          db.session.add(transaction)
+          db.session.add(user)
+          db.session.commit()
+        else:
+          transactionValue = transaction.id
+          if found == None:
+            transactionDetails = {
+              'payer': transaction.payer,
+              'points': 0 - requiredPoints,
+            }
+            transactionList.append(transactionDetails)
+          else:
+            transactionList[found]["points"] -= requiredPoints
+          user.points -= requiredPoints
+          payer = transaction.payer
+          points = 0 - requiredPoints
+          timestamp = datetime.now()
+          used = False
+          transaction = Transactions(payer = payer, points = points, timestamp = timestamp, used = used)
+          db.session.add(transaction)
+          db.session.add(user)
+          db.session.commit()
+          break
+      return jsonify(transactionList)
     except:
       message = {
         'status': 500,
