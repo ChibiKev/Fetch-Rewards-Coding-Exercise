@@ -26,6 +26,8 @@ When calling this API the root is `http://127.0.0.1:5000`
 
 `/account` - Get User's Current Points
 
+`/account/balance` - Get Total Amount of Points For Each Payer
+
 `/account/transactions` - Get All Transactions
 
 `/account/add` - Get Instructions of How to Add

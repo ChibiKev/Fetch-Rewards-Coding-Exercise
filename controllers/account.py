@@ -17,6 +17,22 @@ def userProfile():
     db.session.commit()
   return "Current Points: " + str(user.points)
 
+@bp.route("/balance", methods = ['GET'])
+def balance():
+  transactionList = []
+  transactions = Transactions.query.filter(Transactions.used == False).order_by(asc(Transactions.timestamp)).all()
+  for transaction in transactions:
+    found = next((index for (index, d) in enumerate(transactionList) if d['payer'] == transaction.payer), None)
+    if found == None:
+      transactionDetails = {
+        'payer': transaction.payer,
+        'points': transaction.points,
+      }
+      transactionList.append(transactionDetails)
+    else:
+      transactionList[found]["points"] += transaction.points
+  return jsonify(transactionList)
+
 @bp.route("/transactions", methods = ['GET'])
 def transactionsList():
   transactions = Transactions.query.all()
