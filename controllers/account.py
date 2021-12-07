@@ -12,7 +12,7 @@ def userProfile():
   user = User.query.get(1)
   if not user:
     print("No Vaild User: Creating User")
-    user = User(points = 0, transaction = 1)
+    user = User(points = 0)
     db.session.add(user)
     db.session.commit()
   return "Current Points: " + str(user.points)
@@ -33,7 +33,8 @@ def transactionsList():
     transactionDetails = {
       'payer': transaction.payer,
       'points': transaction.points,
-      'timestamp': transaction.timestamp
+      'timestamp': transaction.timestamp,
+      'used': transaction.used
     }
     transactionList.append(transactionDetails)
   return jsonify(transactionList)
@@ -48,7 +49,8 @@ def addTransactions():
       payer = req['payer']
       points = req['points']
       timestamp = datetime.strptime(req['timestamp'],"%Y-%m-%dT%H:%M:%SZ")
-      transaction = Transactions(payer = payer, points = points, timestamp = timestamp)
+      used = False
+      transaction = Transactions(payer = payer, points = points, timestamp = timestamp, used = used)
       db.session.add(transaction)
       db.session.commit()
       user = User.query.get(1)
@@ -56,7 +58,7 @@ def addTransactions():
         user.points += points
       else:
         print("No Vaild User: Creating User")
-        user = User(points = points, transaction = 1)
+        user = User(points = points)
       db.session.add(user)
       db.session.commit()
       message = {
@@ -83,7 +85,7 @@ def spend():
       user = User.query.get(1)
       if not user:
         print("No Vaild User: Creating User")
-        user = User(points = 0, transaction = 1)
+        user = User(points = 0)
         db.session.add(user)
         db.session.commit()
       if requiredPoints > user.points:
@@ -95,7 +97,7 @@ def spend():
       else:
         transactionValue = user.transaction
         transactionList = []
-        transactions = Transactions.query.filter(Transactions.id > transactionValue).order_by(asc(Transactions.timestamp)).all()
+        transactions = Transactions.query.filter_by(Transactions.id > transactionValue, Transactions.used == False).order_by(asc(Transactions.timestamp)).all()
         for transaction in transactions:
           found = next((index for (index, d) in enumerate(transactionList) if d['payer'] == transaction.payer), None)
           if transaction.points < requiredPoints:

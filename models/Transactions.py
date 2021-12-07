@@ -6,8 +6,10 @@ class Transactions(db.Model):
   payer = db.Column(db.String(100), unique=False, nullable=False)
   points = db.Column(db.Integer(), unique=False, nullable=False)
   timestamp = db.Column(db.DateTime(), unique=False, nullable=False)
+  used = db.Column(db.Boolean(), unique=False, nullable=False)
 
-  def __init__(self, payer, points, timestamp):
+  def __init__(self, payer, points, timestamp, used):
     self.payer = payer
     self.points = points
     self.timestamp = timestamp
+    self.used = used
