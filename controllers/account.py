@@ -50,7 +50,7 @@ def transactionsList():
 @bp.route("/add", methods = ['GET', 'POST'])
 def addTransactions():
   if request.method == 'GET':
-    return "This is add for transactions"
+    return "This is add for transactions. To add, please use the following format\n { 'payer': 'Name', 'points': Number, 'timestamp': 'Year-Month-DateTHour:Minute:SecondZ' }"
   elif request.method == 'POST':
     req = request.json
     try:
@@ -85,7 +85,7 @@ def addTransactions():
 @bp.route("/spend", methods = ['GET', 'POST'])
 def spend():
   if request.method == 'GET':
-    return "This is spend for transactions"
+    return "This is spend for transactions. To spend, please use the following format\n { 'points': Number } "
   elif request.method == 'POST':
     req = request.json
     try:
