@@ -118,7 +118,15 @@ def spend():
               transactionList.append(transactionDetails)
             else:
               transactionList[found]["points"] -= transaction.points
+            transaction.used = True
+            db.session.add(transaction)
           else:
+            difference =  transaction.points - requiredPoints
+            payer = transaction.payer
+            timestamp = datetime.now()
+            used = False
+            newTransaction = Transactions(payer = payer, points = difference, timestamp = timestamp, used = used)
+            db.session.add(newTransaction)
             if found == None:
               transactionDetails = {
                 'payer': transaction.payer,
@@ -128,13 +136,15 @@ def spend():
             else:
               transactionList[found]["points"] -= requiredPoints
             user.points -= requiredPoints
+            transaction.used = True
+            db.session.add(transaction)
             break
         db.session.add(user)
         for transaction in transactionList:
           payer = transaction["payer"]
           points = transaction["points"]
           timestamp = datetime.now()
-          used = False
+          used = True
           transaction = Transactions(payer = payer, points = points, timestamp = timestamp, used = used)
           db.session.add(transaction)
         db.session.commit()

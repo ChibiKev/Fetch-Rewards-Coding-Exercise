@@ -71,4 +71,3 @@ When calling this API the URL is `http://127.0.0.1:5000`
 - There are still a few BUGs that needs to be fixed to work in production.
 - This API is scalable by:
   - Increasing the amount of users. A user model has already been created so we're able to modify our API to work for multiple users.
-  - Marking which transaction is already used to improve efficiency.
